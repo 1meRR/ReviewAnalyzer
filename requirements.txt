@@ -1,0 +1,5 @@
+django
+djangorestframework
+textblob
+nltk
+matplotlib
