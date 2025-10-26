@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Review Analyzer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+<main class="container">
+<h1>Анализ отзывов</h1>
+{% if messages %}<ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
+<section><h2>Добавить отзыв</h2><form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Сохранить</button></form></section>
+<section><h2>Импорт CSV</h2><form method="post" action="{% url 'upload_reviews' %}" enctype="multipart/form-data">{% csrf_token %}{{ upload_form.as_p }}<button type="submit">Загрузить</button></form></section>
+<section>
+<h2>Статистика</h2>
+<canvas id="chart" height="120"></canvas>
+<script>const data={{ chart_data|safe }};new Chart(document.getElementById('chart'),{type:'bar',data});</script>
+<p>Позитивные: {{ summary.percentages.positive }}% | Нейтральные: {{ summary.percentages.neutral }}% | Негативные: {{ summary.percentages.negative }}%</p>
+</section>
+<section>
+<h2>Последние отзывы</h2>
+<table>
+<thead><tr><th>Товар</th><th>Автор</th><th>Оценка</th><th>Тональность</th><th>Текст</th><th>Дата</th></tr></thead>
+<tbody>{% for review in recent_reviews %}<tr><td>{{ review.product_name }}</td><td>{{ review.author|default:"—" }}</td><td>{{ review.rating|default:"—" }}</td><td>{{ review.get_sentiment_display }}</td><td>{{ review.short_content }}</td><td>{{ review.created_at|date:"d.m.Y H:i" }}</td></tr>{% empty %}<tr><td colspan="6">Нет данных</td></tr>{% endfor %}</tbody>
+</table>
+</section>
+</main>
+</body>
+</html>
